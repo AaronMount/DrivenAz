@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>DrivenAz</id>
+		<version>1.0</version>
+		<authors>Anthony Leatherwood</authors>
+		<owners>aleatherwood</owners>
+		<licenseUrl>https://github.com/Fastlite/DrivenAz/blob/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/Fastlite/DrivenAz</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/Fastlite/DrivenAz/master/icon.png</iconUrl>
+		<description>DrivenAz is an interface to Azure table storage in the style of DrivenDb</description>
+			<!--<summary>
+			</summary>-->
+		<releaseNotes>Please visit the github site for release notes.</releaseNotes>
+		<!--<copyright>Copyright 2012</copyright>-->
+		<tags>azure drivendb orm</tags>    
+	</metadata>  
+	<files>
+		<file src="..\..\Release\*.dll" target="lib\net40" /> 
+		<file src="..\..\Release\*.exe" target="lib\net40" /> 
+		<file src="..\..\Release\*.pdb" target="lib\net40" /> 			 
+		<file src="..\..\Release\*.xml" target="lib\net40" /> 			 
+	</files>
+</package>
