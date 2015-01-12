@@ -54,7 +54,7 @@
     <Compile Include="Internal\TableBatchOperations.cs" />
     <Compile Include="Internal\TableEntities.cs" />
     <Compile Include="Internal\Tables.cs" />
-    <Compile Include="Public\TableStorageAttribute.cs" />
+    <Compile Include="Public\DrivenTableAttribute.cs" />
     <Compile Include="Public\EntityKey.cs" />
     <Compile Include="Internal\OperationConverter.cs" />
     <Compile Include="Internal\AsyncTableAccessor.cs" />

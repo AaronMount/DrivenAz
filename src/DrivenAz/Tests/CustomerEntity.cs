@@ -24,7 +24,7 @@ namespace DrivenAz.Tests
    /// customer's first name as the row key and last name as the partition key. In reality this would not be a good
    /// PK and RK combination as it would likely not be gauranteed to be unique which is one of the requirements for an entity. 
    /// <summary>
-   [TableStorage("Customer")]
+   [DrivenTable("Customer")]
    public class CustomerEntity : TableEntity
    {
       // Your entity type must expose a parameter-less constructor

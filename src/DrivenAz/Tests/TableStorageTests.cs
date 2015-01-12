@@ -2,12 +2,26 @@
 using DrivenAz.Public;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DrivenAz.Tests
 {
    [TestClass]
    public class TableStorageTests
-   {         
+   {
+      [TestMethod]
+      public void TableAccessor_CanExecuteQuery()
+      {
+         var accessor = CreateCustomerTable();
+         var query = new TableQuery<CustomerEntity>()
+            .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Dalton"));
+
+         var actual = accessor.ExecuteQueryAsync(query);
+
+         Assert.AreEqual(1, actual.Count);
+         Assert.AreEqual("222-222-2222", actual.Single().PhoneNumber);
+      }
+ 
       [TestMethod]
       public void TableAccessor_CanRetrieveAnExistingEntityByKeys()
       {

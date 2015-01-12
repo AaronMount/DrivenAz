@@ -59,5 +59,8 @@ namespace DrivenAz.Public
 
       Task DeleteAsync<T>(string partitionKey, string rowKey)
          where T : class, ITableEntity;
+
+      Task<EnumerableResult<T>> ExecuteQueryAsync<T>(TableQuery<T> query)
+         where T : ITableEntity, new();
    }
 }

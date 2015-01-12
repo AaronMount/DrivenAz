@@ -25,6 +25,12 @@ namespace DrivenAz.Internal
          return _accessor.DeleteTableIfExistsAsync<T>().GetAwaiter().GetResult();
       }
 
+      public EnumerableResult<T> ExecuteQueryAsync<T>(TableQuery<T> query)
+         where T : ITableEntity, new()
+      {
+         return _accessor.ExecuteQueryAsync<T>(query).GetAwaiter().GetResult();
+      }
+
       public T Insert<T>(T entity) 
          where T : class, ITableEntity
       {

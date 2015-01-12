@@ -19,8 +19,8 @@ namespace DrivenAz.Internal
 
       private static string ExtractName(Type type)
       {
-         var attribute = type.GetCustomAttributes(typeof (TableStorageAttribute), true)
-            .Cast<TableStorageAttribute>()
+         var attribute = type.GetCustomAttributes(typeof (DrivenTableAttribute), true)
+            .Cast<DrivenTableAttribute>()
             .SingleOrDefault();
 
          return attribute != null

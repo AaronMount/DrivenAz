@@ -3,11 +3,11 @@
 namespace DrivenAz.Public
 {
    [AttributeUsage(AttributeTargets.Class)]
-   public class TableStorageAttribute : Attribute
+   public class DrivenTableAttribute : Attribute
    {
       private readonly string _tableName;
 
-      public TableStorageAttribute(string tableName)
+      public DrivenTableAttribute(string tableName)
       {
          _tableName = tableName;
       }

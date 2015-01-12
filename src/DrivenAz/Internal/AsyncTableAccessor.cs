@@ -33,6 +33,18 @@ namespace DrivenAz.Internal
          return result;
       }
 
+      public Task<EnumerableResult<T>> ExecuteQueryAsync<T>(TableQuery<T> query)
+         where T : ITableEntity, new()
+      {
+         return Task.Factory.StartNew(() =>
+            {
+               var result = _client.GetTableReference<T>()
+                  .ExecuteQuery(query);
+
+               return result.ToResults();
+            });
+      }
+
       public async Task<T> InsertAsync<T>(T entity)
          where T : class, ITableEntity
       {

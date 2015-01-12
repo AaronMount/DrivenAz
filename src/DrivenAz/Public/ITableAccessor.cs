@@ -23,5 +23,8 @@ namespace DrivenAz.Public
       void Delete<T>(T entity) where T : class, ITableEntity;
       void DeleteAll<T>(IEnumerable<T> entities) where T : class, ITableEntity;
       void Delete<T>(string partitionKey, string rowKey) where T : class, ITableEntity;
+
+      EnumerableResult<T> ExecuteQueryAsync<T>(TableQuery<T> query)
+         where T : ITableEntity, new();
    }
 }
