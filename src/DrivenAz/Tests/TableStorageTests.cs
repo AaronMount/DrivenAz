@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DrivenAz.Public;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
@@ -64,6 +65,24 @@ namespace DrivenAz.Tests
          var entity = new CustomerEntity("Leatherwood", "Anthony") {PhoneNumber = "444-444-4444"};
          
          accessor.Insert(entity);
+
+         var actual = accessor.Retrieve<CustomerEntity>("Leatherwood", "Anthony");
+
+         Assert.IsTrue(actual.HasValue);
+         Assert.AreEqual("444-444-4444", actual.Value.PhoneNumber);
+      }
+
+      [TestMethod]
+      public void TableAccessor_CanInsertNewEntities()
+      {
+         var accessor = CreateCustomerTable();
+         var entities = new List<CustomerEntity>()
+            {
+               new CustomerEntity("Leatherwood", "Anthony") {PhoneNumber = "444-444-4444"},
+               new CustomerEntity("Leatherwood", "David") {PhoneNumber = "444-444-4444"},
+            };
+         
+         accessor.InsertAll(entities);
 
          var actual = accessor.Retrieve<CustomerEntity>("Leatherwood", "Anthony");
 

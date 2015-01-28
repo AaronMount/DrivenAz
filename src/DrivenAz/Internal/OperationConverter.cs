@@ -58,6 +58,8 @@ namespace DrivenAz.Internal
          {            
             foreach (var instance in batch)
             {
+               /* NOTE: only one retrieve allowed for each record.  it throws otherwise.
+                */
                var operation = new TableBatchOperation();
 
                operation.Retrieve<T>(instance.PartitionKey, instance.RowKey);
