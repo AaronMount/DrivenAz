@@ -55,15 +55,15 @@ namespace DrivenAz.Internal
          where T : ITableEntity
       {
          foreach (var batch in batches)
-         {
-            var operation = new TableBatchOperation();
-
+         {            
             foreach (var instance in batch)
             {
-               operation.Retrieve<T>(instance.PartitionKey, instance.RowKey);
-            }
+               var operation = new TableBatchOperation();
 
-            yield return operation;
+               operation.Retrieve<T>(instance.PartitionKey, instance.RowKey);
+
+               yield return operation;
+            }
          }
       }
 

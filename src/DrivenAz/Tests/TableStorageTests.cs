@@ -80,12 +80,13 @@ namespace DrivenAz.Tests
                new EntityKey("Mount", "Aaron"),
                new EntityKey("Dalton", "Nick"),
                new EntityKey("Brown", "Paul"),
+               new EntityKey("Brown", "Steve"),
             };
 
          var actual = accessor.RetrieveAll<CustomerEntity>(keys);
          
-         Assert.AreEqual(3, actual.Count);
-         Assert.AreEqual("333-333-3333", actual.Last().PhoneNumber);
+         Assert.AreEqual(4, actual.Count);
+         Assert.AreEqual("333-333-3333", actual.ElementAt(2).PhoneNumber);
       }
 
       [TestMethod]
@@ -97,6 +98,7 @@ namespace DrivenAz.Tests
                new CustomerEntity("Leatherwood", "Anthony") {PhoneNumber = "444-444-4444"},
                new CustomerEntity("Peppa", "Pig") {PhoneNumber = "555-555-5555"},
                new CustomerEntity("Cash", "Johnny") {PhoneNumber = "666-666-6666"},
+               new CustomerEntity("Cash", "Fred") {PhoneNumber = "777-777-7777"},
             };
 
          accessor.InsertAll(entities);
@@ -116,6 +118,7 @@ namespace DrivenAz.Tests
                new EntityKey("Mount", "Aaron"),
                new EntityKey("Dalton", "Nick"),
                new EntityKey("Brown", "Paul"),
+               new EntityKey("Brown", "Steve"),
             };
 
          var existing = accessor.RetrieveAll<CustomerEntity>(keys);
@@ -191,6 +194,7 @@ namespace DrivenAz.Tests
                new CustomerEntity("Mount", "Aaron") {Email = "amount@unlimitedsystems.com", PhoneNumber = "111-111-1111"},
                new CustomerEntity("Dalton", "Nick") {Email = "ndalton@unlimitedsystems.com", PhoneNumber = "222-222-2222"},
                new CustomerEntity("Brown", "Paul") {Email = "pbrown@unlimitedsystems.com", PhoneNumber = "333-333-3333"},
+               new CustomerEntity("Brown", "Steve") {Email = "sbrown@unlimitedsystems.com", PhoneNumber = "444-444-4444"},
             };
 
          accessor.InsertOrMergeAll(customers);
