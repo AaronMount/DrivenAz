@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DrivenAz.Public;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DrivenAz.Internal
@@ -16,7 +17,13 @@ namespace DrivenAz.Internal
          return result;
       }
 
-      public static IEnumerable<TableBatchOperation> ToOperations<T>(this IEnumerable<IEnumerable<T>> batches, EntitiesOperationConverter<T> converter)
+      public static IEnumerable<TableBatchInformation<T>> ToBatchInformations<T>(this IEnumerable<IEnumerable<T>> batches, EntitiesBatchInformationConverter<T> converter)
+         where T : ITableEntity
+      {
+         return converter(batches);
+      }
+
+      public static IEnumerable<TableBatchInformation<T>> ToBatchInformations<T>(this IEnumerable<IEnumerable<EntityKey>> batches, EntityKeyBatchInformationConverter<T> converter)
          where T : ITableEntity
       {
          return converter(batches);
