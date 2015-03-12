@@ -26,13 +26,13 @@ namespace DrivenAz.Internal
          return execution.Result as T;
       }
 
-      public static async Task<IEnumerable<T>> ExecuteBatchAsync<T>(this CloudTable table, IEnumerable<T> entities, EntitiesOperationConverter<T> converter)
-         where T : class, ITableEntity 
-      {         
+      public static async Task<IEnumerable<T>> ExecuteBatchAsync<T>(this CloudTable table, IEnumerable<T> entities, EntitiesBatchInformationConverter<T> converter)
+         where T : class, ITableEntity
+      {
          var executions = await entities
             .ToPessimisticConcurrency()
             .ToBatches()
-            .ToOperations(converter)
+            .ToBatchInformations(converter)
             .ExecuteAsync<T>(table);
 
          var results = executions
@@ -42,12 +42,12 @@ namespace DrivenAz.Internal
          return results;
       }
 
-      public static async Task<IEnumerable<T>> ExecuteBatchAsync<T>(this CloudTable table, IEnumerable<EntityKey> keys, KeysOperationConverter converter)
+      public static async Task<IEnumerable<T>> ExecuteBatchAsync<T>(this CloudTable table, IEnumerable<EntityKey> keys, EntityKeyBatchInformationConverter<T> batchInformationConverter)
          where T : ITableEntity
       {
          var executions = await keys            
             .ToBatches()
-            .ToOperations(converter)
+            .ToBatchInformations(batchInformationConverter)
             .ExecuteAsync<T>(table);
 
          var results = executions

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DrivenAz.Public;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -192,6 +193,26 @@ namespace DrivenAz.Tests
          accessor.DeleteAll(new[] {version2.Value});
 
          Assert.IsTrue(true);
+      }
+
+      [TestMethod]
+      public void TableAccessor_StorageExceptionsReturnExceptionContainingEntity()
+      {
+         var accessor = CreateCustomerTable();
+         var entity = new CustomerEntity("Dalton", "Nick");
+         var entities = new List<CustomerEntity>();
+         for(var i = 0; i < 101; i++) entities.Add(entity);
+         try
+         {
+            accessor.InsertOrMergeAll(entities);
+         }
+         catch (DrivenAzStorageException<CustomerEntity> e)
+         {
+            Assert.IsNotNull(e.Entity);
+            Assert.IsTrue(e.Entity.RowKey == "Nick");
+            return;
+         }
+         Assert.Fail("DrivenAzStorageException was not thrown");
       }
 
       private static ITableAccessor CreateCustomerTable()

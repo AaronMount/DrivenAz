@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 using DrivenAz.Public;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DrivenAz.Internal
 {
    internal delegate TableOperation EntityOperationConverter(ITableEntity entity);
-   internal delegate IEnumerable<TableBatchOperation> EntitiesOperationConverter<in T>(IEnumerable<IEnumerable<T>> batches);
+   internal delegate IEnumerable<TableBatchInformation<T>> EntitiesBatchInformationConverter<T>(IEnumerable<IEnumerable<T>> batches) where T : ITableEntity;
+   internal delegate IEnumerable<TableBatchInformation<T>> EntityKeyBatchInformationConverter<T>(IEnumerable<IEnumerable<EntityKey>> batches) where T : ITableEntity;
    internal delegate TableOperation KeyOperationConverter(EntityKey key);
    internal delegate IEnumerable<TableBatchOperation> KeysOperationConverter(IEnumerable<IEnumerable<EntityKey>> keys);
 
@@ -19,7 +21,7 @@ namespace DrivenAz.Internal
          return result;
       }
       
-      public static IEnumerable<TableBatchOperation> InsertOrMergeAll<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> InsertOrMergeAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
          foreach (var batch in batches)
@@ -31,14 +33,14 @@ namespace DrivenAz.Internal
                operation.InsertOrMerge(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
 
-      public static IEnumerable<TableBatchOperation> InsertOrReplace<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> InsertOrReplace<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -47,14 +49,14 @@ namespace DrivenAz.Internal
                operation.InsertOrReplace(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
 
-      public static IEnumerable<TableBatchOperation> RetrieveAll<T>(this IEnumerable<IEnumerable<EntityKey>> batches)
+      public static IEnumerable<TableBatchInformation<T>> RetrieveAll<T>(this IEnumerable<IEnumerable<EntityKey>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {            
             foreach (var instance in batch)
             {
@@ -64,15 +66,15 @@ namespace DrivenAz.Internal
 
                operation.Retrieve<T>(instance.PartitionKey, instance.RowKey);
 
-               yield return operation;
+               yield return new TableBatchInformation<T>(operation, new T[]{}); ;
             }
          }
       }
 
-      public static IEnumerable<TableBatchOperation> DeleteAll<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> DeleteAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -81,14 +83,14 @@ namespace DrivenAz.Internal
                operation.Delete(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
 
-      public static IEnumerable<TableBatchOperation> InsertAll<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> InsertAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -97,14 +99,14 @@ namespace DrivenAz.Internal
                operation.Insert(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
 
-      public static IEnumerable<TableBatchOperation> MergeAll<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> MergeAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -113,14 +115,14 @@ namespace DrivenAz.Internal
                operation.Merge(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
 
-      public static IEnumerable<TableBatchOperation> ReplaceAll<T>(this IEnumerable<IEnumerable<T>> batches)
+      public static IEnumerable<TableBatchInformation<T>> ReplaceAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -129,7 +131,7 @@ namespace DrivenAz.Internal
                operation.Replace(instance);
             }
 
-            yield return operation;
+            yield return new TableBatchInformation<T>(operation, batch);
          }
       }
    }
