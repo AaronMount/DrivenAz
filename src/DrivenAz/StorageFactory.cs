@@ -8,7 +8,7 @@ namespace DrivenAz
    {
       public static IAsyncTableAccessor CreateAsyncAccessor(CloudStorageAccount account)
       {
-         return new AsyncTableAccessor(account);
+         return new AsyncTableAccessor(account, new EventHub());
       }
 
       public static ITableAccessor CreateAccessor(CloudStorageAccount account)

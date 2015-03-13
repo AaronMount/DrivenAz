@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -62,5 +63,7 @@ namespace DrivenAz.Public
 
       Task<EnumerableResult<T>> ExecuteQueryAsync<T>(TableQuery<T> query)
          where T : ITableEntity, new();
+
+      event EventHandler<DrivenAzOperationCompletedArgs> OperationCompleted;
    }
 }

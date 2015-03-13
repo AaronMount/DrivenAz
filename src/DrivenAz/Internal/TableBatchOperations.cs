@@ -10,7 +10,7 @@ namespace DrivenAz.Internal
 {
    internal static class TableBatchOperations
    {
-      public async static Task<IEnumerable<T>> ExecuteAsync<T>(this IEnumerable<TableBatchInformation<T>> batchInformations, CloudTable table) where T : ITableEntity
+      public async static Task<IEnumerable<T>> ExecuteAsync<T>(this IEnumerable<TableBatchInformation<T>> batchInformations, CloudTable table, EventHub eventHub) where T : ITableEntity
       {
          var executions = new List<TableResult>();
 
@@ -23,10 +23,10 @@ namespace DrivenAz.Internal
             }
             catch (StorageException e)
             {
-               int failedIndex = -1;
                var responseCodeIndex = e.Message.LastIndexOf(" ", StringComparison.InvariantCulture);
                if (responseCodeIndex > -1)
                {
+                  int failedIndex;
                   if (Int32.TryParse(e.Message.Substring(responseCodeIndex + 1), out failedIndex))
                   {
                      throw new DrivenAzStorageException<T>(e, batchInformation.Entities[failedIndex]);
@@ -34,6 +34,8 @@ namespace DrivenAz.Internal
                }
                throw;
             }
+
+            eventHub.RaiseOperationCompleted(new DrivenAzOperationCompletedArgs(batchInformation.OperationType, batchInformation.Entities.Cast<ITableEntity>()));
          }
 
          var results = executions.Select(e => (T) e.Result)

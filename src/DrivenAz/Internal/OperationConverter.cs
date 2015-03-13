@@ -24,7 +24,7 @@ namespace DrivenAz.Internal
       public static IEnumerable<TableBatchInformation<T>> InsertOrMergeAll<T>(this IEnumerable<IEnumerable<T>> batches)
          where T : ITableEntity
       {
-         foreach (var batch in batches)
+         foreach (var batch in batches.Select(b => b.ToArray()))
          {
             var operation = new TableBatchOperation();
 
@@ -33,7 +33,7 @@ namespace DrivenAz.Internal
                operation.InsertOrMerge(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.InsertOrMerge);
          }
       }
 
@@ -49,7 +49,7 @@ namespace DrivenAz.Internal
                operation.InsertOrReplace(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.InsertOrReplace);
          }
       }
 
@@ -66,7 +66,7 @@ namespace DrivenAz.Internal
 
                operation.Retrieve<T>(instance.PartitionKey, instance.RowKey);
 
-               yield return new TableBatchInformation<T>(operation, new T[]{}); ;
+               yield return new TableBatchInformation<T>(operation, new T[]{}, TableOperationType.Retrieve); ;
             }
          }
       }
@@ -83,7 +83,7 @@ namespace DrivenAz.Internal
                operation.Delete(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.Delete);
          }
       }
 
@@ -99,7 +99,7 @@ namespace DrivenAz.Internal
                operation.Insert(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.Insert);
          }
       }
 
@@ -115,7 +115,7 @@ namespace DrivenAz.Internal
                operation.Merge(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.Merge);
          }
       }
 
@@ -131,7 +131,7 @@ namespace DrivenAz.Internal
                operation.Replace(instance);
             }
 
-            yield return new TableBatchInformation<T>(operation, batch);
+            yield return new TableBatchInformation<T>(operation, batch, TableOperationType.Replace);
          }
       }
    }
