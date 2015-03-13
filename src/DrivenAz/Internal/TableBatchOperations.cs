@@ -23,8 +23,16 @@ namespace DrivenAz.Internal
             }
             catch (StorageException e)
             {
-               var failedIndex = Int32.Parse(e.Message.Substring(e.Message.LastIndexOf(" ", StringComparison.InvariantCulture) + 1));
-               throw new DrivenAzStorageException<T>(e, batchInformation.Entities[failedIndex]);
+               int failedIndex = -1;
+               var responseCodeIndex = e.Message.LastIndexOf(" ", StringComparison.InvariantCulture);
+               if (responseCodeIndex > -1)
+               {
+                  if (Int32.TryParse(e.Message.Substring(responseCodeIndex + 1), out failedIndex))
+                  {
+                     throw new DrivenAzStorageException<T>(e, batchInformation.Entities[failedIndex]);
+                  }
+               }
+               throw;
             }
          }
 
