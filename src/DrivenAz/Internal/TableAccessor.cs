@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DrivenAz.Public;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -11,6 +12,7 @@ namespace DrivenAz.Internal
       public TableAccessor(IAsyncTableAccessor accessor)
       {
          _accessor = accessor;
+         _accessor.OperationCompleted += OperationCompleted;
       }
 
       public bool CreateTableIfNotExists<T>() 
@@ -126,5 +128,7 @@ namespace DrivenAz.Internal
       {
          _accessor.DeleteAllAsync(entities).GetAwaiter().GetResult();
       }
+
+      public event EventHandler<DrivenAzOperationCompletedArgs> OperationCompleted = delegate { };
    }
 }

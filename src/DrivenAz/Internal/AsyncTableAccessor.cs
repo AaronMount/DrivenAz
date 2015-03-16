@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using DrivenAz.Public;
 using Microsoft.WindowsAzure.Storage;
@@ -9,9 +12,12 @@ namespace DrivenAz.Internal
    internal class AsyncTableAccessor : IAsyncTableAccessor
    {
       private readonly CloudTableClient _client;
+      private readonly EventHub _eventHub;
 
-      public AsyncTableAccessor(CloudStorageAccount account)
+      public AsyncTableAccessor(CloudStorageAccount account, EventHub eventHub)
       {
+         _eventHub = eventHub;
+         _eventHub.OperationCompleted += OperationCompleted;
          _client = account.CreateCloudTableClient();
       }
 
@@ -51,6 +57,8 @@ namespace DrivenAz.Internal
          var result = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(entity, TableOperation.Insert);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Insert, new[] { entity }));
+
          return result;
       }
 
@@ -58,7 +66,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var output = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertAll);
+            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertAll, _eventHub);
 
          return output.ToResults();
       }
@@ -69,6 +77,8 @@ namespace DrivenAz.Internal
          var result = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(entity, TableOperation.Merge);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Merge, new[] { entity }));
+
          return result;
       }
 
@@ -76,7 +86,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var output = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(entities, OperationConverter.MergeAll);
+            .ExecuteBatchAsync<T>(entities, OperationConverter.MergeAll, _eventHub);
 
          return output.ToResults();
       }
@@ -87,6 +97,8 @@ namespace DrivenAz.Internal
          var result = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(entity, TableOperation.InsertOrMerge);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.InsertOrMerge, new[] { entity }));
+
          return result;
       }
 
@@ -94,7 +106,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var output = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertOrMergeAll);
+            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertOrMergeAll, _eventHub);
 
          return output.ToResults();
       }
@@ -105,6 +117,8 @@ namespace DrivenAz.Internal
          var result = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(entity, TableOperation.Replace);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Replace, new[] { entity }));
+
          return result;
       }
 
@@ -112,7 +126,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var output = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(entities, OperationConverter.ReplaceAll);
+            .ExecuteBatchAsync<T>(entities, OperationConverter.ReplaceAll, _eventHub);
 
          return output.ToResults();
       }
@@ -123,6 +137,8 @@ namespace DrivenAz.Internal
          var result = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(entity, TableOperation.InsertOrReplace);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.InsertOrReplace, new[] { entity }));
+
          return result;
       }
 
@@ -130,7 +146,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var output = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertOrReplace);
+            .ExecuteBatchAsync<T>(entities, OperationConverter.InsertOrReplace, _eventHub);
 
          return output.ToResults();
       }
@@ -140,7 +156,7 @@ namespace DrivenAz.Internal
       {
          var key = new EntityKey(partitionKey, rowKey);
 
-         return await RetrieveAsync<T>(key);         
+         return await RetrieveAsync<T>(key);
       }
 
       public async Task<ConditionalResult<T>> RetrieveAsync<T>(EntityKey key)
@@ -149,6 +165,8 @@ namespace DrivenAz.Internal
          var entity = await _client.GetTableReference<T>()
             .ExecuteAsync<T>(key, OperationConverter.Retrieve<T>);
 
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Retrieve, new[] { entity }));
+
          return entity.ToResult();
       }
 
@@ -156,7 +174,7 @@ namespace DrivenAz.Internal
          where T : class, ITableEntity
       {
          var entities = await _client.GetTableReference<T>()
-            .ExecuteBatchAsync<T>(keys, OperationConverter.RetrieveAll<T>);
+            .ExecuteBatchAsync<T>(keys, OperationConverter.RetrieveAll<T>, _eventHub);
 
          return entities.ToResults();
       }
@@ -170,6 +188,8 @@ namespace DrivenAz.Internal
 
             await _client.GetTableReference<T>()
                .ExecuteAsync<T>(entity, TableOperation.Delete);
+
+            OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Delete, new[] { entity }));
          }
          catch (StorageException e)
          {
@@ -187,6 +207,8 @@ namespace DrivenAz.Internal
          {
             await _client.GetTableReference<T>()
                .ExecuteAsync<T>(entity, TableOperation.Delete);
+
+            OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Delete, new [] { entity }));
          }
          catch (StorageException e)
          {
@@ -204,15 +226,20 @@ namespace DrivenAz.Internal
           *       iterating and deleting instead until there's a way to do this.
           *       this is the one true bummer to this whole system.
           */
-         foreach (var entity in entities)
+         var entityArray = entities.ToArray();
+         foreach (var entity in entityArray)
          {
             await DeleteAsync(entity);
          }
+
+         OperationCompleted(this, new DrivenAzOperationCompletedArgs(TableOperationType.Delete, entityArray));
 
          //var output = await _client.GetTableReference<T>()
          //   .ExecuteBatchAsync<T>(entities, OperationConverter.DeleteAll);
 
          //return output.ToResults();
       }
+
+      public event EventHandler<DrivenAzOperationCompletedArgs> OperationCompleted = delegate { };
    }
 }

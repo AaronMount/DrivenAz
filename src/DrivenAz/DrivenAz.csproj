@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal\AccessorExtensions.cs" />
+    <Compile Include="Internal\EventHub.cs" />
+    <Compile Include="Public\DrivenAzProgresUpdatedArgs.cs" />
     <Compile Include="Public\DrivenAzStorageException.cs" />
     <Compile Include="Public\EnumerableResult.cs" />
     <Compile Include="Internal\CloudTableClients.cs" />

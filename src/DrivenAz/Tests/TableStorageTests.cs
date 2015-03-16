@@ -215,6 +215,15 @@ namespace DrivenAz.Tests
          Assert.Fail("DrivenAzStorageException was not thrown");
       }
 
+      [TestMethod]
+      [ExpectedException(typeof(StorageException), "The original exception was not rethrown")]
+      public void TableAccessor_StorageExceptionRethrowsWhenItDoesNotContainAResponseCode()
+      {
+         var accessor = CreateCustomerTable();
+
+         accessor.Insert(new CustomerEntity(null, null));
+      }
+
       private static ITableAccessor CreateCustomerTable()
       {
          var account = CloudStorageAccount.Parse("UseDevelopmentStorage=true");
