@@ -58,7 +58,7 @@
         <ItemGroup>
             <FilesToZip Include="$(ReleaseFolder)\*.*" />
         </ItemGroup>
-        <Zip Files="@(filestozip)" WorkingDirectory="$(ReleaseFolder)" ZipFileName="$(ReleaseFolder)\DrivenAz.1.3.zip" />
+        <Zip Files="@(filestozip)" WorkingDirectory="$(ReleaseFolder)" ZipFileName="$(ReleaseFolder)\DrivenAz.1.4.zip" />
     </Target>
 	
 	<Target Name="CompleteBuild" DependsOnTargets="Zip" />
